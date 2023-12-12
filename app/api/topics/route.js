@@ -1,0 +1,35 @@
+import connectMongoDB from "@/libs/mongodb";
+import Topic from "@/models/topics";
+import { NextResponse } from "next/server";
+
+export async function POST(request){
+    const {title,description} =await request.json();
+    console.log(title,description);
+    await connectMongoDB();
+    await Topic.create({
+        title,
+        description
+    });
+    return NextResponse.json({message:"Topic created"},{status:201});
+
+}
+
+export async function GET(){
+    await connectMongoDB();
+    const topics = await Topic.find();
+    return NextResponse.json({topics},{status:200});
+}
+
+export async function DELETE(request){
+   const id =  request.nextUrl.searchParams.get("id");
+
+    try{
+        await connectMongoDB();
+       await Topic.findByIdAndDelete(id);
+    }
+    catch(err){
+        return NextResponse.json({message:"Topic not found"},{status:404});
+    }
+  
+    return NextResponse.json({message:"Topic deleted"},{status:200});
+}
